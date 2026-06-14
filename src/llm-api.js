@@ -1,12 +1,17 @@
 import OpenAI from "openai";
 import 'dotenv/config';
 import { salesManagerPrompt } from "./prompts.js";
-import { get_sales_data, tools } from "./tools.js";
+import { get_inventory_data, get_products, get_sales_data, tools } from "./tools.js";
 
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 })
 
+const toolMap = {
+    get_sales_data: get_sales_data,
+    get_inventory_data: get_inventory_data,
+    get_products: get_products
+}
 
 export async function makeLlmCall(input) {
     let response = await client.responses.create({
@@ -15,23 +20,24 @@ export async function makeLlmCall(input) {
         input: input,
         tools: tools,
     })
-    // console.log('response', response);
+    console.log('response', response);
 
     input = `${input}\n\n${response.output}`
     let toolResults = [];
     for (const item of response.output) {
         if (item.type !== "function_call") continue;
 
-        if (item.name === "get_sales_data") {
-            // 3. Execute the function logic for get_sales_data
-            const { product_name, start_date } = JSON.parse(item.arguments);
-            const sales_data = get_sales_data({ product_name, start_date });
+        const toolFunction = toolMap[item.name];
+        if (toolFunction) {
+            // 3. Execute the function logic for the matched tool
+            const args = JSON.parse(item.arguments);
+            const result = toolFunction(args);
 
             // 4. Provide function call results to the model
             toolResults.push({
                 type: "function_call_output",
                 call_id: item.call_id,
-                output: JSON.stringify(sales_data),
+                output: JSON.stringify(result),
             })
         }
     }
