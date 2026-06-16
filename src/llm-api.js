@@ -41,8 +41,8 @@ export async function makeLlmCall(input) {
             })
         }
     }
-    // console.log("Final input:");
-    // console.log(toolResults);
+    console.log("Final input:");
+    console.log(toolResults);
 
     response = await client.responses.create({
         model: "gpt-4o-mini",

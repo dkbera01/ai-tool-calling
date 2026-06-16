@@ -43,13 +43,8 @@ export const tools = [
         description: "Get a list of products",
         parameters: {
             type: "object",
-            properties: {
-                product_name: {
-                    type: "string",
-                    description: "The name of the product to get inventory data for"
-                },
-            },
-            required: ["product_name"],
+            properties: {},
+            required: [],
             additionalProperties: false,
         },
         strict: true,
@@ -75,11 +70,11 @@ export function get_inventory_data({ low_stock_only }) {
     return {
         product_name: "Product A",
         stock_quantity: low_stock_only ? 5 : 100,
-        low_stock: low_stock_only ? true : falsego
+        low_stock: low_stock_only ? true : false
     }
 }
 
-export function get_products({ product_name }) {
+export function get_products() {
     // In a real implementation, this function would query a database or an API to get the list of products.
     // For this example, we'll just return some dummy data.
     return [
